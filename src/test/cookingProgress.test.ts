@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  delayPendingTasks,
   getNextPendingActiveTask,
   getNextReadyActiveTask,
   hasUnfinishedTasks
@@ -52,5 +53,34 @@ describe("cooking progress helpers", () => {
 
     expect(getNextPendingActiveTask(tasks)?.taskId).toBe("future");
     expect(hasUnfinishedTasks(tasks)).toBe(true);
+  });
+
+  it("delays pending tasks without moving current, done, or running passive tasks", () => {
+    const delayed = delayPendingTasks(
+      [
+        task({ taskId: "current", status: "running", startMinute: 0, endMinute: 5 }),
+        task({
+          taskId: "passive-running",
+          type: "passive",
+          startMinute: 0,
+          endMinute: 20
+        }),
+        task({ taskId: "done", status: "done", startMinute: 5, endMinute: 10 }),
+        task({ taskId: "pending", startMinute: 15, endMinute: 20 })
+      ],
+      {
+        currentTaskId: "current",
+        elapsedSeconds: 10 * 60
+      }
+    );
+
+    expect(delayed.find((item) => item.taskId === "current")?.startMinute).toBe(0);
+    expect(
+      delayed.find((item) => item.taskId === "passive-running")?.startMinute
+    ).toBe(0);
+    expect(delayed.find((item) => item.taskId === "done")?.startMinute).toBe(5);
+    expect(delayed.find((item) => item.taskId === "pending")?.startMinute).toBe(
+      20
+    );
   });
 });

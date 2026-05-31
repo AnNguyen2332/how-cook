@@ -259,3 +259,51 @@ Result: Passed. Dev server restarted on port 3000 with PID `20360`; `/` and `/ic
 7. Click `Hoàn tất`, `Bỏ qua`, `Dời 5 phút`, and `Tạm dừng` / `Tiếp tục`.
 8. Reload the page and confirm the meal plan is restored.
 9. Click `Làm mới` and confirm local state clears.
+
+## Phase 0 Improvement Verification
+
+Run after implementing `Phase0_Improvement.md` stabilization items.
+
+```text
+npm run lint
+```
+
+Result: Passed. TypeScript completed with no errors.
+
+```text
+npm test
+```
+
+Result: Passed. 3 test files, 13 tests.
+
+Coverage added:
+
+- Scheduler multi-dish output.
+- One-cook active task conflict prevention.
+- Planner mode output differences.
+- Delay pending tasks only.
+- Plain-text timeline export ordering.
+
+```text
+npm run build
+```
+
+Result: Passed. Production build completed. Route `/` built successfully.
+
+```text
+npx --yes --package @playwright/cli playwright-cli -s=phase0 open http://127.0.0.1:3000
+npx --yes --package @playwright/cli playwright-cli -s=phase0 snapshot
+npx --yes --package @playwright/cli playwright-cli -s=phase0 click <Bữa mẫu ref>
+npx --yes --package @playwright/cli playwright-cli -s=phase0 click <Sao chép lịch ref>
+npx --yes --package @playwright/cli playwright-cli -s=phase0 click "text=Bắt đầu nấu"
+npx --yes --package @playwright/cli playwright-cli -s=phase0 console error
+```
+
+Result: Passed. Browser smoke check confirmed the 2-dish disabled state, selected summary, active/passive dish badges, resource-duration comparison, timeline export button, cooking mode entry, and 0 browser console errors.
+
+```text
+npx --yes --package @playwright/cli playwright-cli -s=phase0 screenshot --filename output/playwright/how-cook-phase0-improvements-desktop.png --full-page
+npx --yes --package @playwright/cli playwright-cli -s=phase0 screenshot --filename output/playwright/how-cook-phase0-improvements-mobile.png --full-page
+```
+
+Result: Passed. Desktop and mobile screenshots captured for the Phase 0 improvement pass.

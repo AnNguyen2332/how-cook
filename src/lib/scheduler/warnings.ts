@@ -7,6 +7,12 @@ import type {
 } from "@/types/domain";
 import { resourcesFitKitchen } from "./resource";
 
+const resourceWarningLabels = {
+  stove: "bếp",
+  pot: "nồi",
+  pan: "chảo"
+} as const;
+
 const uniqueWarnings = (warnings: SchedulerWarning[]) => {
   const seen = new Set<string>();
   return warnings.filter((warning) => {
@@ -61,7 +67,7 @@ export const detectWarnings = (
     ) {
       warnings.push({
         type: "resource_conflict",
-        message: `Chỉ có 1 ${resourceType.replace("_", " ")} nên một số bước sẽ phải chờ nhau.`
+        message: `Chỉ có 1 ${resourceWarningLabels[resourceType]} nên một số bước sẽ phải chờ nhau.`
       });
     }
   });

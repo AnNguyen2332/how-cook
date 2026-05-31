@@ -305,3 +305,99 @@ UI/UX interaction QA and fixes on 2026-05-31:
 - Captured Playwright screenshots:
   - `output/playwright/how-cook-ui-ux-desktop-after-fix.png`
   - `output/playwright/how-cook-ui-ux-mobile-after-fix.png`
+
+Phase 0 improvement pass on 2026-05-31:
+
+## HC-009 - Phase 0 Code Audit
+
+Objective: Map `Phase0_Improvement.md` against the current implementation.
+
+Scope: Inspect scheduler, timeline, cooking mode, persistence, tests, and UX states.
+
+Affected files:
+
+- `PHASE0_CODE_AUDIT.md`
+- `.codex-workspace/projects/how-cook/tasks.md`
+
+Dependencies: Completed Phase 0 implementation.
+
+Acceptance criteria:
+
+- Current implementation is mapped to the improvement plan.
+- Remaining gaps are separated from already implemented items.
+
+Verification:
+
+- Manual code inspection.
+
+Risk level: Low.
+
+Status: Completed.
+
+## HC-010 - Selection, Timeline Export, And Resource Feedback
+
+Objective: Improve visible testability and sharing of the Phase 0 timeline.
+
+Scope: Require 2+ dishes for schedule generation, add selected-dish summary, show active/passive duration on dish cards, add plain-text timeline export, and show 1-stove vs 2-stove duration comparison.
+
+Affected files:
+
+- `src/app/page.tsx`
+- `src/components/dishes/DishCard.tsx`
+- `src/components/dishes/DishSelector.tsx`
+- `src/components/timeline/TimelineView.tsx`
+- `src/lib/export/timelineText.ts`
+- `src/lib/scheduler/warnings.ts`
+
+Dependencies: HC-003 through HC-007.
+
+Acceptance criteria:
+
+- `Tạo lịch` is disabled until at least 2 dishes are selected.
+- Selected dishes are summarized in the selector.
+- Dish cards expose active and passive duration.
+- Timeline can be copied as readable plain text.
+- Timeline review shows visible duration impact for 1 vs 2 stove burners.
+- Resource warnings use user-facing Vietnamese labels.
+
+Verification:
+
+- `npm run lint`
+- `npm test`
+- `npm run build`
+- Browser smoke check.
+
+Risk level: Low.
+
+Status: Completed.
+
+## HC-011 - Strengthen Phase 0 Tests And QA Checklist
+
+Objective: Cover the remaining scheduler and cooking-delay acceptance criteria from the improvement plan.
+
+Scope: Add tests for multi-dish scheduling, one-cook active-task conflicts, planner mode differences, delay behavior, and timeline text export. Add a manual QA checklist.
+
+Affected files:
+
+- `src/test/scheduler.test.ts`
+- `src/test/cookingProgress.test.ts`
+- `src/test/timelineText.test.ts`
+- `src/lib/cooking/progress.ts`
+- `QA_PHASE0.md`
+
+Dependencies: HC-010.
+
+Acceptance criteria:
+
+- Scheduler tests include 8 cases.
+- Cooking delay shifts pending tasks only.
+- Timeline text export is deterministic and ordered.
+- Manual QA checklist covers selection, generation, cooking, persistence, and responsive layout.
+
+Verification:
+
+- `npm test`
+
+Risk level: Low.
+
+Status: Completed.

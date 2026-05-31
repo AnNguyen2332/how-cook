@@ -8,7 +8,11 @@ import { AppShell } from "@/components/layout/AppShell";
 import { Header } from "@/components/layout/Header";
 import { TimelineView } from "@/components/timeline/TimelineView";
 import { demoDishes } from "@/data/demoDishes";
-import { getNextReadyActiveTask } from "@/lib/cooking/progress";
+import {
+  delayPendingTasks,
+  getNextReadyActiveTask
+} from "@/lib/cooking/progress";
+import { createTimelineText } from "@/lib/export/timelineText";
 import { sortScheduledTasks } from "@/lib/format";
 import { generateSchedule } from "@/lib/scheduler/generateSchedule";
 import {
@@ -97,6 +101,9 @@ export default function Home() {
   const [mealPlan, setMealPlan] = useState<MealPlan>(() => createInitialPlan());
   const [hydrated, setHydrated] = useState(false);
   const [nowMs, setNowMs] = useState(() => Date.now());
+  const [copyStatus, setCopyStatus] = useState<"idle" | "copied" | "failed">(
+    "idle"
+  );
 
   useEffect(() => {
     const savedPlan = loadMealPlan();
@@ -131,7 +138,7 @@ export default function Home() {
   );
 
   const schedulerOutput = useMemo(() => {
-    if (selectedDishes.length === 0) {
+    if (selectedDishes.length < 2) {
       return null;
     }
 
@@ -140,6 +147,25 @@ export default function Home() {
       kitchenSetup: mealPlan.kitchenSetup,
       mode: mealPlan.plannerMode
     });
+  }, [mealPlan.kitchenSetup, mealPlan.plannerMode, selectedDishes]);
+
+  const resourceImpact = useMemo(() => {
+    if (selectedDishes.length < 2) {
+      return [];
+    }
+
+    return [1, 2].map((stoveCount) => ({
+      label: `${stoveCount} bếp`,
+      durationMinutes: generateSchedule({
+        dishes: selectedDishes,
+        kitchenSetup: {
+          ...mealPlan.kitchenSetup,
+          stove: stoveCount
+        },
+        mode: mealPlan.plannerMode
+      }).totalDurationMinutes,
+      isCurrent: mealPlan.kitchenSetup.stove === stoveCount
+    }));
   }, [mealPlan.kitchenSetup, mealPlan.plannerMode, selectedDishes]);
 
   const totalDurationMinutes = Math.max(
@@ -240,7 +266,7 @@ export default function Home() {
 
   const handleGenerate = () => {
     updatePlan((plan) => {
-      if (plan.selectedDishIds.length === 0) {
+      if (plan.selectedDishIds.length < 2) {
         return plan;
       }
 
@@ -336,29 +362,32 @@ export default function Home() {
         "cookingStartedAt",
         "pausedElapsedSeconds"
       );
-      const delayedTasks = plan.scheduledTasks.map((task) => {
-        const isCurrent = task.taskId === plan.currentTaskId;
-        const isPassiveRunning =
-          task.type === "passive" &&
-          currentElapsed >= task.startMinute * 60 &&
-          currentElapsed < task.endMinute * 60;
-
-        if (task.status !== "pending" || isCurrent || isPassiveRunning) {
-          return task;
-        }
-
-        return {
-          ...task,
-          startMinute: task.startMinute + 5,
-          endMinute: task.endMinute + 5
-        };
-      });
 
       return {
         ...plan,
-        scheduledTasks: sortScheduledTasks(delayedTasks)
+        scheduledTasks: delayPendingTasks(plan.scheduledTasks, {
+          currentTaskId: plan.currentTaskId,
+          elapsedSeconds: currentElapsed
+        })
       };
     });
+  };
+
+  const handleCopyTimeline = async () => {
+    if (mealPlan.scheduledTasks.length === 0) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(
+        createTimelineText(mealPlan.scheduledTasks, demoDishes)
+      );
+      setCopyStatus("copied");
+    } catch {
+      setCopyStatus("failed");
+    }
+
+    window.setTimeout(() => setCopyStatus("idle"), 2200);
   };
 
   const handleTogglePause = () => {
@@ -478,9 +507,12 @@ export default function Home() {
         />
       ) : (
         <TimelineView
+          copyStatus={copyStatus}
           dishes={demoDishes}
+          onCopyTimeline={handleCopyTimeline}
           onRegenerate={handleGenerate}
           onStartCooking={handleStartCooking}
+          resourceImpact={resourceImpact}
           scheduledTasks={mealPlan.scheduledTasks}
           selectedDishIds={mealPlan.selectedDishIds}
           totalDurationMinutes={

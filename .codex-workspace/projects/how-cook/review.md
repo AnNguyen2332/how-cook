@@ -49,3 +49,22 @@ The app is local-first and stores only the current meal plan in browser localSto
 ## Test Coverage
 
 Scheduler unit tests cover dependency ordering, passive/active overlap, single-stove resource conflicts, serve-immediately placement, and unavailable resource warnings. Cooking-progress helper tests cover future-step promotion behavior. Browser interaction validation covers sample loading, start cooking, pause/resume, done, delay while waiting, reload persistence, and desktop/mobile screenshots.
+
+## Phase 0 Improvement Review
+
+Required fix: None.
+
+Completed improvements:
+
+- `Phase0_Improvement.md` was mapped into `PHASE0_CODE_AUDIT.md`.
+- Schedule generation now requires 2+ dishes, which better matches the multi-dish product promise.
+- Dish selection now has clearer selected-state feedback, a selected-dish summary, and active/passive duration badges.
+- Timeline review now exposes a plain-text export action and a visible 1-stove vs 2-stove duration comparison.
+- Scheduler warnings now use user-facing Vietnamese resource labels.
+- Delay behavior is extracted into a helper and covered by unit tests.
+- `QA_PHASE0.md` now captures the repeatable Phase 0 manual QA path.
+
+Residual risk:
+
+- Clipboard export can still fail if browser permissions block clipboard writes; the UI falls back to an error label.
+- Resource impact currently focuses on stove count only because that is the most visible Phase 0 constraint.

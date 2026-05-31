@@ -84,3 +84,67 @@ Human review the running app at `http://127.0.0.1:3000`, then decide whether to 
 ## Approval Request
 
 Approval is needed before merge or deployment.
+
+## Phase 0 Improvement Handoff
+
+Status: Ready for human review on 2026-05-31.
+
+Tasks completed:
+
+- Analyzed `Phase0_Improvement.md` against the current codebase.
+- Added `PHASE0_CODE_AUDIT.md`.
+- Added `QA_PHASE0.md`.
+- Required at least 2 selected dishes before schedule generation.
+- Added selected-dish summary and stronger selected-card feedback.
+- Added active/passive duration badges to dish cards.
+- Added plain-text timeline export.
+- Added 1-stove vs 2-stove duration feedback in timeline review.
+- Fixed scheduler warning labels for stove/pot/pan resources.
+- Extracted delay behavior into a tested helper.
+- Expanded tests to 13 total tests across scheduler, cooking progress, and timeline export.
+
+Files changed:
+
+- `PHASE0_CODE_AUDIT.md`
+- `QA_PHASE0.md`
+- `.codex-workspace/projects/how-cook/decisions.md`
+- `.codex-workspace/projects/how-cook/handoff.md`
+- `.codex-workspace/projects/how-cook/review.md`
+- `.codex-workspace/projects/how-cook/tasks.md`
+- `.codex-workspace/projects/how-cook/test-report.md`
+- `src/app/page.tsx`
+- `src/components/dishes/DishCard.tsx`
+- `src/components/dishes/DishSelector.tsx`
+- `src/components/timeline/TimelineView.tsx`
+- `src/lib/cooking/progress.ts`
+- `src/lib/export/timelineText.ts`
+- `src/lib/scheduler/warnings.ts`
+- `src/test/cookingProgress.test.ts`
+- `src/test/scheduler.test.ts`
+- `src/test/timelineText.test.ts`
+
+Verification performed:
+
+- `npm run lint`: passed.
+- `npm test`: passed, 3 files and 13 tests.
+- `npm run build`: passed.
+- Browser smoke check with Playwright CLI: passed.
+- Console error check: 0 errors.
+- Screenshots captured:
+  - `output/playwright/how-cook-phase0-improvements-desktop.png`
+  - `output/playwright/how-cook-phase0-improvements-mobile.png`
+
+Known limitations:
+
+- Clipboard export depends on browser clipboard permission.
+- Resource impact comparison currently focuses on stove count only.
+- Scheduler remains heuristic, not optimal.
+
+Recommended next step:
+
+- Human review the local build at `http://127.0.0.1:3000`.
+- If approved, commit and push these changes, then decide whether to redeploy Vercel.
+
+Approval request:
+
+- Approval is needed before committing/pushing this improvement pass or redeploying the public Vercel URL.

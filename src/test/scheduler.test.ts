@@ -19,6 +19,11 @@ const task = (tasks: ReturnType<typeof generateSchedule>["scheduledTasks"], id: 
   return scheduledTask;
 };
 
+const overlaps = (
+  left: ReturnType<typeof generateSchedule>["scheduledTasks"][number],
+  right: ReturnType<typeof generateSchedule>["scheduledTasks"][number]
+) => left.startMinute < right.endMinute && right.startMinute < left.endMinute;
+
 describe("generateSchedule", () => {
   it("schedules a single dish in dependency order", () => {
     const output = generateSchedule({
@@ -31,6 +36,23 @@ describe("generateSchedule", () => {
     expect(task(output.scheduledTasks, "rice-cook").startMinute).toBeGreaterThanOrEqual(
       task(output.scheduledTasks, "rice-wash").endMinute
     );
+  });
+
+  it("schedules multiple dishes into a non-empty timeline", () => {
+    const dishes = [byId("rice-white"), byId("sour-soup"), byId("fried-eggs")];
+    const output = generateSchedule({
+      dishes,
+      kitchenSetup: defaultKitchenSetup,
+      mode: "finish_fast"
+    });
+
+    const expectedTaskCount = dishes.reduce(
+      (sum, dish) => sum + dish.tasks.length,
+      0
+    );
+
+    expect(output.scheduledTasks).toHaveLength(expectedTaskCount);
+    expect(output.totalDurationMinutes).toBeGreaterThan(0);
   });
 
   it("lets passive waiting overlap with active prep", () => {
@@ -62,6 +84,29 @@ describe("generateSchedule", () => {
     expect(overlap).toBe(false);
   });
 
+  it("does not overlap active tasks when there is one cook", () => {
+    const output = generateSchedule({
+      dishes: [byId("sour-soup"), byId("boiled-vegetables"), byId("fried-eggs")],
+      kitchenSetup: { ...defaultKitchenSetup, human: 1, stove: 2, pot: 2 },
+      mode: "finish_fast"
+    });
+    const activeTasks = output.scheduledTasks.filter(
+      (scheduledTask) => scheduledTask.type === "active"
+    );
+
+    for (let leftIndex = 0; leftIndex < activeTasks.length; leftIndex += 1) {
+      for (
+        let rightIndex = leftIndex + 1;
+        rightIndex < activeTasks.length;
+        rightIndex += 1
+      ) {
+        expect(overlaps(activeTasks[leftIndex], activeTasks[rightIndex])).toBe(
+          false
+        );
+      }
+    }
+  });
+
   it("keeps serve-immediately tasks near the end", () => {
     const output = generateSchedule({
       dishes: [byId("rice-white"), byId("boiled-vegetables")],
@@ -82,6 +127,24 @@ describe("generateSchedule", () => {
 
     expect(output.warnings.some((warning) => warning.type === "impossible_schedule")).toBe(
       true
+    );
+  });
+
+  it("allows planner mode to change the schedule output", () => {
+    const dishes = [byId("rice-white"), byId("fried-eggs")];
+    const fast = generateSchedule({
+      dishes,
+      kitchenSetup: defaultKitchenSetup,
+      mode: "finish_fast"
+    });
+    const lowStress = generateSchedule({
+      dishes,
+      kitchenSetup: defaultKitchenSetup,
+      mode: "low_stress"
+    });
+
+    expect(task(fast.scheduledTasks, "rice-wash").startMinute).not.toBe(
+      task(lowStress.scheduledTasks, "rice-wash").startMinute
     );
   });
 });

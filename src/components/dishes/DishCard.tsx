@@ -9,12 +9,19 @@ type DishCardProps = {
 };
 
 export function DishCard({ dish, selected, onToggle }: DishCardProps) {
+  const activeMinutes = dish.tasks
+    .filter((task) => task.type === "active")
+    .reduce((sum, task) => sum + task.durationMinutes, 0);
+  const passiveMinutes = dish.tasks
+    .filter((task) => task.type === "passive")
+    .reduce((sum, task) => sum + task.durationMinutes, 0);
+
   return (
     <button
       aria-pressed={selected}
       className={`w-full rounded-lg border p-3 text-left transition ${
         selected
-          ? "border-zinc-950 bg-white shadow-sm"
+          ? "border-zinc-950 bg-zinc-950/5 opacity-100 shadow-sm ring-2 ring-zinc-950/10"
           : "border-zinc-200 bg-zinc-50 opacity-75 hover:border-zinc-300 hover:bg-white hover:opacity-100"
       }`}
       onClick={() => onToggle(dish.id)}
@@ -40,6 +47,16 @@ export function DishCard({ dish, selected, onToggle }: DishCardProps) {
       <div className="mt-2 flex items-center gap-1 text-sm text-zinc-500">
         <Clock className="h-3.5 w-3.5" />
         ~{estimateDishMinutes(dish)} phút
+      </div>
+      <div className="mt-2 flex flex-wrap gap-1.5 text-xs font-medium">
+        <span className="rounded-full bg-white px-2 py-1 text-zinc-700 ring-1 ring-zinc-200">
+          Chủ động {activeMinutes} phút
+        </span>
+        {passiveMinutes > 0 ? (
+          <span className="rounded-full bg-white px-2 py-1 text-zinc-500 ring-1 ring-zinc-200">
+            Chờ {passiveMinutes} phút
+          </span>
+        ) : null}
       </div>
       <div className="mt-3 flex flex-wrap gap-1.5">
         {dish.tags.map((tag) => (
