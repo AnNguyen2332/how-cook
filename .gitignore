@@ -1,0 +1,16 @@
+node_modules/
+.next/
+out/
+dist/
+coverage/
+output/playwright/
+.playwright-cli/
+*.tsbuildinfo
+
+.env*
+!.env.example
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.next-dev.*.log
