@@ -47,13 +47,6 @@ Current Phase 0 improvement verification:
 - `npm run build`: passed.
 - Playwright CLI smoke check: passed with 0 browser console errors.
 
-## Project Docs
-
-- `Phase0_Improvement.md`: public-release improvement review.
-- `PHASE0_CODE_AUDIT.md`: code audit against the improvement review.
-- `QA_PHASE0.md`: manual QA checklist.
-- `.codex-workspace/projects/how-cook/`: product workflow state, spec, tasks, review, test report, and handoff notes.
-
 ## Known Limits
 
 - Scheduler is deterministic and resource-aware, but heuristic rather than optimal.

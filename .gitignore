@@ -1,6 +1,7 @@
 node_modules/
 .next/
 .vercel/
+.codex-workspace/
 out/
 dist/
 coverage/
@@ -15,3 +16,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .next-dev.*.log
+
+PHASE0_CODE_AUDIT.md
+Phase0_Improvement.md
+QA_PHASE0.md
